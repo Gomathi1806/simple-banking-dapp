@@ -1,0 +1,17 @@
+{
+  "name": "simple-banking-dapp",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "web3": "^4.1.2"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "chai": "^4.3.10",
+    "ethereum-waffle": "^4.0.10",
+    "hardhat": "^2.18.1",
+    "react-scripts": "5.0.1"
+  }
+}
