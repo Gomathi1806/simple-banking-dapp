@@ -1,37 +1,50 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.19;
 
 contract SimpleBank {
-    // The keyword "public" makes those variables readable from outside.
-    address public owner;
 
-    // balanceAmount is used to store customer balances
-    mapping(address => uint) private balanceAmount;
+    mapping(address => uint) private balances;
+    
+    address private owner;
+    
+    event LogDepositMade(address indexed accountAddress, uint amount);
+    event LogWithdrawMade(address indexed accountAddress, uint amount);
 
-    // Constructor is "payable" so it can receive the initial funding of 1, 2, ..., 10 ether
-    constructor() payable {
-        // msg.sender is the address of the creator
+    constructor() {
         owner = msg.sender;
     }
 
-    // deposit Ether into bank, increment the balance of message sender, transaction should fail otherwise
-    function deposit() public payable {
-        require(
-            (balanceAmount[msg.sender] + msg.value) >= balanceAmount[msg.sender]
-        );
-        balanceAmount[msg.sender] += msg.value;
+    
+    modifier onlyOwner {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
     }
 
-    // withdraw "amount" of Ether from the bank
-    function withdraw(uint amount) public {
-        require(balanceAmount[msg.sender] >= amount);
-        balanceAmount[msg.sender] -= amount;
-        payable(msg.sender).transfer(amount);
+    
+    modifier sufficientFunds(uint amount) {
+        require(balances[msg.sender] >= amount, "Insufficient funds");
+        _;
     }
 
-    // check the customer balance
-    function checkBalance() public view returns (uint) {
-        return balanceAmount[msg.sender];
+    
+    function deposit(uint amount) public onlyOwner returns (uint) {
+        balances[msg.sender] += amount;
+        emit LogDepositMade(msg.sender, amount);
+        
+        return balances[msg.sender];
+    }
+
+   
+    function withdraw(uint withdrawAmount) public sufficientFunds(withdrawAmount) returns (uint remainingBal) {
+        balances[msg.sender] -= withdrawAmount;
+        payable(msg.sender).transfer(withdrawAmount);
+        emit LogWithdrawMade(msg.sender, withdrawAmount);
+
+        return balances[msg.sender];
+    }
+
+    
+    function balanceOf(address _owner) public view returns (uint balance) {
+        return balances[_owner];
     }
 }
